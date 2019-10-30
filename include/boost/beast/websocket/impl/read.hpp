@@ -1004,13 +1004,16 @@ loop:
                 }
                 if(impl.ctrl_cb)
                     impl.ctrl_cb(frame_type::ping, payload);
-                detail::frame_buffer fb;
-                impl.template write_ping<flat_static_buffer_base>(fb,
-                    detail::opcode::pong, payload);
-                net::write(impl.stream(), fb.data(), ec);
-                if(impl.check_stop_now(ec))
-                    return bytes_written;
-                goto loop;
+                // disabled automatic reply to ping
+//                detail::frame_buffer fb;
+//                impl.template write_ping<flat_static_buffer_base>(fb,
+//                    detail::opcode::pong, payload);
+//                net::write(impl.stream(), fb.data(), ec);
+//                if(impl.check_stop_now(ec))
+//                    return bytes_written;
+//                goto loop;
+                // we got a ping frame and do a return
+                return 0;
             }
             // Handle pong frame
             if(impl.rd_fh.op == detail::opcode::pong)
@@ -1020,7 +1023,9 @@ loop:
                 impl.rd_buf.consume(len);
                 if(impl.ctrl_cb)
                     impl.ctrl_cb(frame_type::pong, payload);
-                goto loop;
+//                goto loop;
+                // we got a pong frame and do a return
+                return 0;
             }
             // Handle close frame
             BOOST_ASSERT(impl.rd_fh.op == detail::opcode::close);
